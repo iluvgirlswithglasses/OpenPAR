@@ -23,12 +23,8 @@ set_seed(605)
 def main(args):
     start_time=time_str()
     print(f'start_time is {start_time}')
-    log_dir = os.path.join('logs', args.save_place)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-    log_dir = os.path.join(log_dir, start_time)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
+    log_dir = os.path.join('logs', args.save_place, start_time)
+    os.makedirs(log_dir, exist_ok=True)
     stdout_file = os.path.join(log_dir, f'stdout_{time_str()}.txt')
 
     if args.redirector:
@@ -58,10 +54,10 @@ def main(args):
         pin_memory=True,
     )
 
-    model = TransformerClassifier(args=args)
+    model = TransformerClassifier(dim=768, args=args)
 
-    checkpoint_path = '/media/amax/c08a625b-023d-436f-b33e-9652dc1bc7c02/DATA/sunminhao/VTB-main/logs/multiDataset/2025-07-03_18_34_48/ckpt_2025-07-07_13_43_52_40.pth'
-    state_dict = torch.load(checkpoint_path)
+    checkpoint_path = args.ckpt_path
+    state_dict = torch.load(checkpoint_path, weights_only=False)
     model.load_state_dict(state_dict['state_dicts'])
     
     if torch.cuda.is_available():
@@ -109,6 +105,7 @@ def trainer(epoch, model, train_loader, valid_loader, criterion_dict, path, args
                 model=model,
                 valid_loader=valid_loader,
                 criterion=criterion,
+                args=args,
             )
             train_result = get_pedestrian_metrics(train_gt[idx], train_probs[idx])
 
@@ -184,6 +181,7 @@ def trainer(epoch, model, train_loader, valid_loader, criterion_dict, path, args
                 model=model,
                 valid_loader=valid_loader,
                 criterion=criterion,
+                args=args,
             )
             train_result = get_pedestrian_metrics(train_gt[idx], train_probs[idx])
 

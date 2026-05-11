@@ -26,12 +26,8 @@ def main(args):
         print(f"Using GPU(s): {args.gpus}")
     start_time=time_str()
     print(f'start_time is {start_time}')
-    log_dir = os.path.join('logs', args.save_place)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-    log_dir = os.path.join(log_dir, start_time)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
+    log_dir = os.path.join('logs', args.save_place, start_time)
+    os.makedirs(log_dir, exist_ok=True)
     stdout_file = os.path.join(log_dir, f'stdout_test_{time_str()}.txt')
 
     if args.redirector:
@@ -63,10 +59,8 @@ def main(args):
 
     model = TransformerClassifier(dim=768,args=args)
 
-    # checkpoint_path = "/wangx/DATA/Code/partest/code/logs/multiDataset/2025-10-29_09_57_53/ckpt_2025-11-02_09_28_47_50.pth"
-    # checkpoint_path = "/wangx/DATA/Code/yanzikang/PAR/code/logs/multiDataset/2025-10-09_17_42_20/ckpt_2025-10-11_00_55_36_20.pth"
-    checkpoint_path = "/wangx/DATA/Code/partest/code/logs/multiDataset/ckpt_2025-11-12_17_05_12_50.pth"
-    state_dict = torch.load(checkpoint_path,weights_only=False)
+    checkpoint_path = args.ckpt_path
+    state_dict = torch.load(checkpoint_path, weights_only=False)
     model.load_state_dict(state_dict['state_dicts'])
 
     if torch.cuda.is_available():
@@ -96,6 +90,7 @@ def trainer(epoch, model, train_loader, valid_loader, criterion_dict, path, args
             model=model,
             valid_loader=valid_loader,
             criterion=criterion,
+            args=args,
         )
 
             

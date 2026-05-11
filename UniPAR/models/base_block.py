@@ -42,8 +42,10 @@ class ClassifierHead(nn.Module):
         return logits
 
 class TransformerClassifier(nn.Module):
-    def __init__(self, dim=768, pretrain_path="/wangx/DATA/Code/xujiarui/jx_vit_base_p16_224-80ecf9dd.pth", args=None):
+    def __init__(self, dim=768, pretrain_path='ckpt/jx_vit_base_p16_224-80ecf9dd.pth', args=None):
         super().__init__()
+        if args is not None and hasattr(args, 'pretrain_path'):
+            pretrain_path = args.pretrain_path
         self.word_embed = nn.Linear(768, dim)
 
         self.vit = vit_base()
@@ -101,8 +103,10 @@ class TransformerClassifier(nn.Module):
 
 
 class VisualOnlyTransformerClassifier(nn.Module):
-    def __init__(self, dim=768, pretrain_path="/wangx/DATA/Code/xujiarui/jx_vit_base_p16_224-80ecf9dd.pth", args=None):
+    def __init__(self, dim=768, pretrain_path='ckpt/jx_vit_base_p16_224-80ecf9dd.pth', args=None):
         super().__init__()
+        if args is not None and hasattr(args, 'pretrain_path'):
+            pretrain_path = args.pretrain_path
 
         # 视觉组件保持不变
         self.vit = vit_base()

@@ -26,12 +26,8 @@ def main(args):
         print(f"Using GPU(s): {args.gpus}")
     start_time=time_str()
     print(f'start_time is {start_time}')
-    log_dir = os.path.join('logs', args.save_place)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-    log_dir = os.path.join(log_dir, start_time)
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
+    log_dir = os.path.join('logs', args.save_place, start_time)
+    os.makedirs(log_dir, exist_ok=True)
     stdout_file = os.path.join(log_dir, f'stdout_{time_str()}.txt')
 
     if args.redirector:
@@ -43,7 +39,6 @@ def main(args):
     print('-' * 60)
     multi_train_set, multi_valid_set, criterion_dict = get_multi_dataset(args)
 
-    print(dir(multi_train_set))  # 输出所有属性和方法
     train_loader = DataLoader(
         dataset=multi_train_set,
         batch_size=args.batchsize,
@@ -60,7 +55,7 @@ def main(args):
         pin_memory=True,
     )
 
-    model = TransformerClassifier(args=args)
+    model = TransformerClassifier(dim=768, args=args)
 
     if torch.cuda.is_available():
         model = model.cuda()
@@ -104,6 +99,7 @@ def trainer(epoch, model, train_loader, valid_loader, criterion_dict, path, args
                 model=model,
                 valid_loader=valid_loader,
                 criterion=criterion,
+                args=args,
             )
             train_result = get_pedestrian_metrics(train_gt, train_probs)
 

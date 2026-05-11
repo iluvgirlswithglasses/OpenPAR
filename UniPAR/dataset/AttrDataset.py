@@ -16,23 +16,18 @@ from loss.CE_loss import CEL_Sigmoid
 
 class PA100k(data.Dataset):
 
-    def __init__(self, split, transform=None, target_transform=None, k=None, imgidx=None):
-
-
-        #dataset_info = pickle.load(open('/wangx/DATA/Dataset/PA100k/dataset.pkl', 'rb+'))
-        with open('/wangx/DATA/Dataset/PA100k/dataset.pkl', 'rb') as f:
+    def __init__(self, split, transform=None, target_transform=None, k=None, imgidx=None, data_root='.'):
+        pkl_path = os.path.join(data_root, 'PA100k', 'dataset.pkl')
+        with open(pkl_path, 'rb') as f:
             dataset_info = pickle.load(f)
-        #  "/media/amax/c08a625b-023d-436f-b33e-9652dc1bc7c02/DATA/dataset/PA100k/dataset.pkl"
         img_id = dataset_info.image_name
         attr_label = dataset_info.label
-
-        
 
         self.dataset = 'PA100k'
         self.transform = transform
         self.target_transform = target_transform
 
-        self.root_path = "/wangx/DATA/Dataset/PA100k/data/"
+        self.root_path = os.path.join(data_root, 'PA100k', 'data') + os.sep
         self.attributes=dataset_info.attr_words
         self.label_vector = dataset_info.attr_vectors
 
@@ -95,23 +90,18 @@ def get_PA100k_transform(args):
 
 class MSP60k(data.Dataset):
 
-    def __init__(self, split, transform=None, target_transform=None, k=None, imgidx=None):
-
-
-        #dataset_info = pickle.load(open('/wangx/DATA/Dataset/PA100k/dataset.pkl', 'rb+'))
-        with open("/wangx/DATA/Dataset/MSP60k/SUBMIT/dataset_random.pkl", 'rb') as f:
+    def __init__(self, split, transform=None, target_transform=None, k=None, imgidx=None, data_root='.'):
+        pkl_path = os.path.join(data_root, 'MSP60k', 'SUBMIT', 'dataset_random.pkl')
+        with open(pkl_path, 'rb') as f:
             dataset_info = pickle.load(f)
-        #  "/media/amax/c08a625b-023d-436f-b33e-9652dc1bc7c02/DATA/dataset/PA100k/dataset.pkl"
         img_id = dataset_info.image_name
         attr_label = dataset_info.label
-
-        
 
         self.dataset = 'MSP60k'
         self.transform = transform
         self.target_transform = target_transform
 
-        self.root_path = "/wangx/DATA/Dataset/MSP60k/SUBMIT/images/"
+        self.root_path = os.path.join(data_root, 'MSP60k', 'SUBMIT', 'images') + os.sep
         self.attributes=dataset_info.attr_words
         self.label_vector = dataset_info.attr_vectors
 
@@ -183,11 +173,9 @@ def get_MSP60k_transform(args):
 
 class EventPAR(data.Dataset):
 
-    def __init__(self, split, transform=None, target_transform=None, imgidx=None, k=None):
-
-
-
-        dataset_info = pickle.load(open("/wdata/Dataset/EventPAR/annotation_EventPAR/dataset_reorder.pkl", 'rb+'))
+    def __init__(self, split, transform=None, target_transform=None, imgidx=None, k=None, data_root='.'):
+        pkl_path = os.path.join(data_root, 'EventPAR', 'annotation_EventPAR', 'dataset_reorder.pkl')
+        dataset_info = pickle.load(open(pkl_path, 'rb'))
 
         img_id = dataset_info.image_name
         attr_label = dataset_info.label
@@ -198,9 +186,8 @@ class EventPAR(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
 
-
-        self.attributes=dataset_info.attr_name
-        self.root_path = "/wangx/DATA/Dataset/EventPAR/"
+        self.attributes = dataset_info.attr_name
+        self.root_path = os.path.join(data_root, 'EventPAR') + os.sep
         self.attr_num = len(self.attributes)
         
         
@@ -281,16 +268,12 @@ class EventPAR(data.Dataset):
     
 class DUKE(data.Dataset):
 
-    def __init__(self, split, transform=None, target_transform=None, repet=None, k=None, imgidx=None):
-
-        # 没有pad_duke.pkl文件
-        #dataset_info = pickle.load(open("/wangx/DATA/Dataset/DUKE/pad_duke.pkl", 'rb+'))
-        with open('/wangx/DATA/Dataset/DUKE/pad_duke.pkl', 'rb') as f:
+    def __init__(self, split, transform=None, target_transform=None, repet=None, k=None, imgidx=None, data_root='.'):
+        pkl_path = os.path.join(data_root, 'DUKE', 'pad_duke.pkl')
+        with open(pkl_path, 'rb') as f:
             dataset_info = pickle.load(f)
 
-
         img_id = dataset_info.track_name
-        #img_id = dataset_info.image_name
         attr_label = dataset_info.label
 
         assert split in dataset_info.partition.keys(), f'split {split} is not exist'
@@ -299,10 +282,8 @@ class DUKE(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
 
-        
-
-        self.attributes=dataset_info.attr_name
-        self.root_path = "/wangx/DATA/Dataset/pad_duke_dataset_event/"
+        self.attributes = dataset_info.attr_name
+        self.root_path = os.path.join(data_root, 'pad_duke_dataset_event') + os.sep
 
         self.attr_num = len(self.attributes)
         
@@ -451,51 +432,44 @@ def get_multi_dataset(args):
     multi_train_set = MultiDataset()
     multi_valid_set = MultiDataset()
     criterion_dict = {}
-    #breakpoint()
-    #datasets = ['PA100k','EventPAR']
-    #for dataset in args.dataset:
+    data_root = getattr(args, 'data_root', '.')
     for dataset in args.dataset:
-        if dataset=='PA100k':
+        if dataset == 'PA100k':
             train_tsfm, valid_tsfm = get_PA100k_transform(args)
-            train_set = PA100k(split=args.train_split, transform=train_tsfm)
-            valid_set = PA100k(split=args.valid_split, transform=valid_tsfm)
+            train_set = PA100k(split=args.train_split, transform=train_tsfm, data_root=data_root)
+            valid_set = PA100k(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             multi_train_set.append_set(name=dataset, dataset=train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['PA100k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
-        
-        elif dataset=='MSP60k':
+
+        elif dataset == 'MSP60k':
             train_tsfm, valid_tsfm = get_MSP60k_transform(args)
-            train_set = MSP60k(split=args.train_split, transform=train_tsfm)
-            valid_set = MSP60k(split=args.valid_split, transform=valid_tsfm)
+            train_set = MSP60k(split=args.train_split, transform=train_tsfm, data_root=data_root)
+            valid_set = MSP60k(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             multi_train_set.append_set(name=dataset, dataset=train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['MSP60k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
 
-        elif dataset=='EventPAR':
+        elif dataset == 'EventPAR':
             train_tsfm, valid_tsfm = get_transform(args)
-            train_set = EventPAR(split='train', transform=train_tsfm)
-            valid_set = EventPAR(split=args.valid_split, transform=valid_tsfm)
+            train_set = EventPAR(split='train', transform=train_tsfm, data_root=data_root)
+            valid_set = EventPAR(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             multi_train_set.append_set(name=dataset, dataset=train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['EventPAR'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
-        
-        elif dataset=='DUKE':
+
+        elif dataset == 'DUKE':
             train_tsfm, valid_tsfm = get_transform(args)
-            train_set = DUKE(split=args.train_split, transform=train_tsfm)
-            valid_set = DUKE(split=args.valid_split, transform=valid_tsfm)
+            train_set = DUKE(split=args.train_split, transform=train_tsfm, data_root=data_root)
+            valid_set = DUKE(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             multi_train_set.append_set(name=dataset, dataset=train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['DUKE'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
     return multi_train_set, multi_valid_set, criterion_dict
-    # return multi_train_set
 
 
 class MixMultiDataset(data.Dataset):
@@ -595,45 +569,42 @@ def get_mix_multi_dataset(args):
     train_set_list = []
     multi_valid_set = MultiDataset()
     criterion_dict = {}
+    data_root = getattr(args, 'data_root', '.')
     for dataset in args.dataset:
-        if dataset=='PA100k':
+        if dataset == 'PA100k':
             train_tsfm, valid_tsfm = get_PA100k_transform(args)
-            train_set = PA100k(split=args.train_split, transform=train_tsfm)
-            valid_set = PA100k(split=args.valid_split, transform=valid_tsfm)
+            train_set = PA100k(split=args.train_split, transform=train_tsfm, data_root=data_root)
+            valid_set = PA100k(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['PA100k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
 
-        elif dataset=='MSP60k':
+        elif dataset == 'MSP60k':
             train_tsfm, valid_tsfm = get_MSP60k_transform(args)
-            train_set = MSP60k(split=args.train_split, transform=train_tsfm)
-            valid_set = MSP60k(split=args.valid_split, transform=valid_tsfm)
+            train_set = MSP60k(split=args.train_split, transform=train_tsfm, data_root=data_root)
+            valid_set = MSP60k(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
-            criterion_dict['MSP60k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)       
-        
-        elif dataset=='EventPAR':
+            sample_weight = train_set.label.mean(0)
+            criterion_dict['MSP60k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
+
+        elif dataset == 'EventPAR':
             train_tsfm, valid_tsfm = get_transform(args)
-            train_set = EventPAR(split='train', transform=train_tsfm)
-            valid_set = EventPAR(split=args.valid_split, transform=valid_tsfm)
+            train_set = EventPAR(split='train', transform=train_tsfm, data_root=data_root)
+            valid_set = EventPAR(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['EventPAR'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
-        
-        elif dataset in 'DUKE':
+
+        elif dataset == 'DUKE':
             train_tsfm, valid_tsfm = get_transform(args)
-            train_set = DUKE(split=args.train_split, transform=train_tsfm, repet=args.repet_DUKE)
-            valid_set = DUKE(split=args.valid_split, transform=valid_tsfm)
+            train_set = DUKE(split=args.train_split, transform=train_tsfm, repet=args.repet_DUKE, data_root=data_root)
+            valid_set = DUKE(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['DUKE'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
     multi_train_set = MixMultiDataset(train_set_list)
     return multi_train_set, multi_valid_set, criterion_dict
@@ -642,45 +613,43 @@ def get_mix_balance_dataset(args, imgidx_PA100k, imgidx_DUKE):
     train_set_list = []
     multi_valid_set = MultiDataset()
     criterion_dict = {}
+    data_root = getattr(args, 'data_root', '.')
     for dataset in args.dataset:
-        if dataset=='PA100k':
+        if dataset == 'PA100k':
             train_tsfm, valid_tsfm = get_PA100k_transform(args)
-            train_set = PA100k(split=args.train_split, transform=train_tsfm, k=len(imgidx_PA100k), imgidx=imgidx_PA100k)
-            valid_set = PA100k(split=args.valid_split, transform=valid_tsfm)
+            train_set = PA100k(split=args.train_split, transform=train_tsfm, k=len(imgidx_PA100k), imgidx=imgidx_PA100k, data_root=data_root)
+            valid_set = PA100k(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['PA100k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
 
-        elif dataset=='MSP60k':
+        elif dataset == 'MSP60k':
             train_tsfm, valid_tsfm = get_MSP60k_transform(args)
-            train_set = MSP60k(split=args.train_split, transform=train_tsfm, k=len(imgidx_MSP60k), imgidx=imgidx_PA100k)
-            valid_set = MSP60k(split=args.valid_split, transform=valid_tsfm)
+            imgidx_msp = imgidx_PA100k  # reuse same index list for MSP60k balance
+            train_set = MSP60k(split=args.train_split, transform=train_tsfm, k=len(imgidx_msp), imgidx=imgidx_msp, data_root=data_root)
+            valid_set = MSP60k(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
-            criterion_dict['MSP60k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)       
+            sample_weight = train_set.label.mean(0)
+            criterion_dict['MSP60k'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
 
-        elif dataset=='EventPAR':
+        elif dataset == 'EventPAR':
             train_tsfm, valid_tsfm = get_transform(args)
-            train_set = EventPAR(split='train', transform=train_tsfm, k=10000, imgidx=[])
-            valid_set = EventPAR(split=args.valid_split, transform=valid_tsfm)
+            train_set = EventPAR(split='train', transform=train_tsfm, k=10000, imgidx=[], data_root=data_root)
+            valid_set = EventPAR(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['EventPAR'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
-        
-        elif dataset in 'DUKE':
+
+        elif dataset == 'DUKE':
             train_tsfm, valid_tsfm = get_transform(args)
-            train_set = DUKE(split=args.train_split, transform=train_tsfm, repet=args.repet_DUKE, k=len(imgidx_DUKE), imgidx=imgidx_DUKE)
-            valid_set = DUKE(split=args.valid_split, transform=valid_tsfm)
+            train_set = DUKE(split=args.train_split, transform=train_tsfm, repet=args.repet_DUKE, k=len(imgidx_DUKE), imgidx=imgidx_DUKE, data_root=data_root)
+            valid_set = DUKE(split=args.valid_split, transform=valid_tsfm, data_root=data_root)
             train_set_list.append(train_set)
             multi_valid_set.append_set(name=dataset, dataset=valid_set)
-            labels = train_set.label
-            sample_weight = labels.mean(0)
+            sample_weight = train_set.label.mean(0)
             criterion_dict['DUKE'] = CEL_Sigmoid(sample_weight, attr_idx=train_set.attr_num)
     multi_train_set = MixMultiDataset(train_set_list)
     return multi_train_set, multi_valid_set, criterion_dict

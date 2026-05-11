@@ -5,11 +5,8 @@ def argument_parser():
     parser = argparse.ArgumentParser(description="attribute recognition",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    # parser.add_argument("--dataset", type=str, default=['DUKE','EventPAR'])
-    parser.add_argument("--lossrate", type=str, default=[1,1,1]) #0.8 ,1,0.5
-    # parser.add_argument("--dataset", type=str, default=['PA100k', 'DUKE'])
-    # parser.add_argument("--dataset", type=str, default=['MSP60k'])
-    parser.add_argument("--dataset", type=str, default=['MSP60k','DUKE','EventPAR'])
+    parser.add_argument("--lossrate", nargs='+', type=float, default=[1, 1, 1])
+    parser.add_argument("--dataset", nargs='+', default=['MSP60k', 'DUKE', 'EventPAR'])
     # parser.add_argument("--lossrate", type=str, default=[0.8,0.5]) #0.8 ,1,0.5
     parser.add_argument("--save_place", type=str, default="multiDataset")
     
@@ -23,7 +20,11 @@ def argument_parser():
     parser.add_argument("--train_split", type=str, default="trainval", choices=['train', 'trainval'])
     parser.add_argument("--valid_split", type=str, default="test", choices=['test', 'valid'])
     
-    parser.add_argument('--gpus', default='5', type=str, help='gpu device ids for CUDA_VISIBLE_DEVICES')
+    parser.add_argument('--gpus', default='0', type=str, help='gpu device ids for CUDA_VISIBLE_DEVICES')
+    parser.add_argument('--data_root', type=str, default='.', help='root directory containing all datasets')
+    parser.add_argument('--pretrain_path', type=str, default='ckpt/jx_vit_base_p16_224-80ecf9dd.pth',
+                        help='path to ImageNet pretrained ViT-Base checkpoint')
+    parser.add_argument('--ckpt_path', type=str, default='', help='checkpoint path for test.py evaluation')
     parser.add_argument("--redirector", action='store_false')
     parser.add_argument("--epoch_save_ckpt", type=int, default=20)
 

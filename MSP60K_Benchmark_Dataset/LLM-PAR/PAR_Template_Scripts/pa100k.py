@@ -43,7 +43,6 @@ def generate_data_description(save_dir):
     dataset = EasyDict()
     dataset.description = 'pa100k'
     dataset.root = os.path.join(save_dir, 'data')
-    breakpoint()
     train_image_name = [pa100k_data['train_images_name'][i][0][0] for i in range(80000)]
     val_image_name = [pa100k_data['val_images_name'][i][0][0] for i in range(10000)]
     test_image_name = [pa100k_data['test_images_name'][i][0][0] for i in range(10000)]

@@ -58,10 +58,11 @@ def main(args):
             imgs, gt_label = imgs.cuda(), gt_label.cuda()
             with torch.cuda.amp.autocast(enabled=True):
                 answer, logits_mean, logits_instance, llm_logits = model.infer(imgs, imgname, gt_label)
-  
-            m_logits = (logits_mean + logits_instance + llm_logits)/3.0    
+
+            m_logits = (logits_mean + logits_instance + llm_logits)/3.0
             m_logits = torch.sigmoid(m_logits)
             mean_preds_probs.append(m_logits.detach().cpu().numpy())
+            gt_list.append(gt_label.cpu().detach().numpy())
         
         test_elapsed = time.time() - test_start
         print(f"Test in {test_elapsed // 60:.0f}m {test_elapsed % 60:.0f}s")

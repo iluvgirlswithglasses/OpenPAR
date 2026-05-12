@@ -66,16 +66,9 @@ class Blip2Base(BaseModel):
         return visual_encoder, cross_layers, ln_vision
 
     def load_from_pretrained(self, url_or_filename):
-        
-        checkpoint = torch.load(google_bert_path, map_location="cpu")
-        state_dict = checkpoint["model"]
-
-        msg = self.load_state_dict(state_dict, strict=False)
-
-        
-        logging.info("load checkpoint from %s" % url_or_filename)
-
-        return msg
+        # Q-Former weights come from the fine-tuned checkpoint (strict=False load later).
+        logging.info("load_from_pretrained skipped – weights provided by fine-tuned checkpoint")
+        return None
 
 
 def disabled_train(self, mode=True):

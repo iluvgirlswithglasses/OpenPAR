@@ -660,10 +660,13 @@ def create_eva_vit_g(img_size=224,drop_path_rate=0.4,use_checkpoint=False,precis
         use_checkpoint=use_checkpoint,
     )  
 
-    state_dict = torch.load(vit_model_path, map_location="cpu")    
-    interpolate_pos_embed(model,state_dict)
-    
-    incompatible_keys = model.load_state_dict(state_dict, strict=False)
+    import os
+    if vit_model_path and os.path.isfile(vit_model_path):
+        state_dict = torch.load(vit_model_path, map_location="cpu")
+        interpolate_pos_embed(model, state_dict)
+        model.load_state_dict(state_dict, strict=False)
+    else:
+        print(f"[eva_vit] '{vit_model_path}' not found – weights will be loaded from checkpoint later")
     dpr = [x.item() for x in torch.linspace(0, 0.4, 39)][-cross_layer_num:]
     cross_layers = nn.ModuleList([Block(dim=1408, num_heads=1408//88, mlp_ratio=4.3637, qkv_bias=True, qk_scale=None,
                 drop=0., attn_drop=0., drop_path=0.4, norm_layer=partial(nn.LayerNorm, eps=1e-6),

@@ -140,8 +140,11 @@ class SeqPAR2(Blip2Base):
         )
 
         print(self.llama_model.config.hidden_size)
-        ckpt = torch.load(minigpt4_path, map_location="cpu")
-        msg = self.load_state_dict(ckpt['model'], strict=False)
+        if os.path.isfile(minigpt4_path):
+            ckpt = torch.load(minigpt4_path, map_location="cpu")
+            self.load_state_dict(ckpt['model'], strict=False)
+        else:
+            print(f"[SeqPAR2] MiniGPT-4 checkpoint not found at '{minigpt4_path}' – skipping")
        
 
         self.cbam_class = nn.ModuleList([CBAM(1408, output_dim=1) for _ in range(attr_num)])
@@ -357,7 +360,7 @@ class SeqPAR2(Blip2Base):
         stop_words_ids = [torch.tensor([835]).to('cpu'),
                           torch.tensor([2277, 29937]).to('cpu')]  # '###' can be encoded in two different ways.
         stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
-        vit_img_embeds, inputs_llama, atts_img = self.encode_img(im, imgname=imgname)
+        vit_img_embeds, inputs_llama, atts_img = self.encode_img(im)
         B,K,L,D = vit_img_embeds.size()
 
         instruction = self.custom_insturction
@@ -395,7 +398,6 @@ class SeqPAR2(Blip2Base):
             # prefix_allowed_tokens_fn=prefix_allowed_tokens_fn
         ) 
         answers = []
-        breakpoint()
         for output_token in outputs['sequences']:
             if output_token[0] == 0:
                 output_token = output_token[1:]

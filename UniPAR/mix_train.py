@@ -19,6 +19,7 @@ from solver import make_optimizer
 from solver.scheduler_factory import create_scheduler
 
 set_seed(605)
+torch.set_float32_matmul_precision('high')
 
 def main(args):
     if args.gpus is not None:
@@ -72,6 +73,7 @@ def main(args):
     if torch.cuda.is_available():
         model = model.cuda()
 
+    model = torch.compile(model, mode='reduce-overhead')
 
     trainer(epoch=args.epoch,
             model=model,

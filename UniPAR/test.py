@@ -61,7 +61,10 @@ def main(args):
 
     checkpoint_path = args.ckpt_path
     state_dict = torch.load(checkpoint_path, weights_only=False)
-    model.load_state_dict(state_dict['state_dicts'])
+    raw = state_dict['state_dicts']
+    if any(k.startswith('_orig_mod.') for k in raw):
+        raw = {k[len('_orig_mod.'):]: v for k, v in raw.items()}
+    model.load_state_dict(raw)
 
     if torch.cuda.is_available():
         model = model.cuda()

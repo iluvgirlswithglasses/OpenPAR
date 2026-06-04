@@ -17,7 +17,8 @@ class TransformerClassifier(nn.Module):
         self.norm = vit.norm
         self.weight_layer = nn.ModuleList([nn.Linear(dim, 1) for i in range(self.attr_num)])
         self.dim = dim
-        self.text = clip.tokenize(attributes).to("cuda")
+        _dev = "cuda" if torch.cuda.is_available() else "cpu"
+        self.text = clip.tokenize(attributes).to(_dev)
         self.bn = nn.BatchNorm1d(self.attr_num)
         fusion_len = self.attr_num + 257 + args.vis_prompt
         if not args.use_mm_former :
@@ -28,7 +29,7 @@ class TransformerClassifier(nn.Module):
     def forward(self,imgs,clip_model):
         b_s=imgs.shape[0]
         clip_image_features,all_class,attenmap=clip_model.visual(imgs.type(clip_model.dtype))
-        text_features = clip_model.encode_text(self.text).to("cuda").float()
+        text_features = clip_model.encode_text(self.text).to(imgs.device).float()
         if args.use_div:
             final_similarity,logits_per_image = clip_model.forward_aggregate(all_class,text_features)
         else : 
